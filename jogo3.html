@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Corrida com Moedas</title>
+    <style>
+        #game-container {
+            width: 400px;
+            height: 400px;
+            border: 1px solid black;
+            position: relative;
+        }
+
+        #car {
+            width: 40px;
+            height: 80px;
+            background-color: blue;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .coin {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            background-size: cover; /* Tornar a imagem da moeda preenchida no elemento */
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="car"></div>
+    </div>
+    <p>Pontuação: <span id="score">0</span></p>
+
+    <script>
+        const gameContainer = document.getElementById("game-container");
+        const car = document.getElementById("car");
+        const scoreDisplay = document.getElementById("score");
+
+        let score = 0;
+
+        // Variável para controlar a posição do carro
+        let carPosition = 50;
+
+        // Atualiza a posição do carro no jogo
+        function updateCarPosition() {
+            car.style.left = carPosition + "%";
+        }
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "a" && carPosition > 5) {
+                // Move o carro para a esquerda (tecla "A")
+                carPosition -= 5;
+                updateCarPosition();
+            } else if (event.key === "d" && carPosition < 95) {
+                // Move o carro para a direita (tecla "D")
+                carPosition += 5;
+                updateCarPosition();
+            }
+        });
+
+        function changeCoinImage(coin, newImageSrc) {
+            coin.style.backgroundImage = `url('${newImageSrc}')`;
+        }
+
+        function createCoin() {
+            const coin = document.createElement("div");
+            coin.classList.add("coin");
+            const randomLeft = Math.floor(Math.random() * (gameContainer.clientWidth - 20));
+            coin.style.left = randomLeft + "px";
+            gameContainer.appendChild(coin);
+
+            // Define a imagem de fundo inicial da moeda
+            changeCoinImage(coin, "coin.png");
+
+            // Animação de queda da moeda
+            const coinInterval = setInterval(() => {
+                const currentTop = parseInt(coin.style.top) || 0;
+                coin.style.top = currentTop + 5 + "px";
+
+                // Verifica colisão com o carro
+                if (checkCollision(coin, car)) {
+                    gameContainer.removeChild(coin);
+                    score++;
+                    scoreDisplay.textContent = score;
+                    // Altera a imagem da moeda quando coletada
+                    changeCoinImage(coin, "nova_moeda.png");
+                }
+
+                // Remove a moeda quando ela atinge o chão
+                if (currentTop >= gameContainer.clientHeight - 20) {
+                    gameContainer.removeChild(coin);
+                }
+            }, 20);
+        }
+
+        function checkCollision(coin, car) {
+            const coinRect = coin.getBoundingClientRect();
+            const carRect = car.getBoundingClientRect();
+            return (
+                coinRect.right > carRect.left &&
+                coinRect.left < carRect.right &&
+                coinRect.bottom > carRect.top &&
+                coinRect.top < carRect.bottom
+            );
+        }
+
+        // Crie moedas periodicamente
+        setInterval(createCoin, 1000);
+    </script>
+</body>
+</html>

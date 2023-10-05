@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Corrida com Moedas</title>
+    <style>
+        #game-container {
+            width: 400px;
+            height: 400px;
+            border: 1px solid black;
+            position: relative;
+            background-image: url("rua.png");
+
+        }
+        .barrier {
+            width: 40px;
+            height: 80px;
+            background-size: cover;
+            position: absolute;
+            
+        }
+        #car {
+            width: 40px;
+            height: 80px;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .coin {
+            width: 20px;
+            height: 20px;
+            background-size: cover;
+            position: absolute;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game-container">
+        <img id="car" src="carro.png" alt="Carro">
+    </div>
+    <p>Pontuação: <span id="score">0</span></p>
+    
+
+    <script>
+        const gameContainer = document.getElementById("game-container");
+        const car = document.getElementById("car");
+        const scoreDisplay = document.getElementById("score");
+        let score = 0;
+
+        
+        let carPosition = 50;
+
+        
+        function updateCarPosition() {
+            car.style.left = carPosition + "%";
+        }
+
+        document.addEventListener("keydown", (event) => {
+            let key = event.key;
+            if ((key === "a" || key === "ArrowLeft") && carPosition > 5) {
+                
+                carPosition -= 5;
+                updateCarPosition();
+            } else if ((key === "d" || key === "ArrowRight") && carPosition < 95) {
+               
+                carPosition += 5;
+                updateCarPosition();
+            }
+        });
+        function changeCoinImage(coin, newImageSrc) {
+            coin.style.backgroundImage = `url('${newImageSrc}')`;
+        }
+
+        function createCoin() {
+            const coin = document.createElement("div");
+            coin.classList.add("coin");
+            const randomLeft = Math.floor(Math.random() * (gameContainer.clientWidth - 20));
+            coin.style.left = randomLeft + "px";
+            gameContainer.appendChild(coin);
+
+            changeCoinImage(coin, "att.png");
+
+            const coinInterval = setInterval(() => {
+                const currentTop = parseInt(coin.style.top) || 0;
+                coin.style.top = currentTop + 5 + "px";
+
+
+                if (checkCollision(coin, car)) {
+                    gameContainer.removeChild(coin);
+                    score++;
+                    scoreDisplay.textContent = score;
+                }
+
+
+                if (currentTop >= gameContainer.clientHeight - 20) {
+                    gameContainer.removeChild(coin);
+                }
+            }, 20);
+        }
+
+        function checkCollision(coin, car) {
+            const coinRect = coin.getBoundingClientRect();
+            const carRect = car.getBoundingClientRect();
+            return (
+                coinRect.right > carRect.left &&
+                coinRect.left < carRect.right &&
+                coinRect.bottom > carRect.top &&
+                coinRect.top < carRect.bottom
+            );
+        }
+        function createBarrier() {
+            const barrier = document.createElement("div");
+            barrier.classList.add("barrier");
+            const randomLeft = Math.floor(Math.random() * (gameContainer.clientWidth - 80));
+            barrier.style.left = randomLeft + "px";
+            barrier.style.top = "0";
+            gameContainer.appendChild(barrier);
+
+            barrier.style.backgroundImage = "url('carroplicia.png')";
+
+            gameContainer.appendChild(barrier);
+
+            const barrierInterval = setInterval(() => {
+                const currentTop = parseInt(barrier.style.top) || 0;
+                barrier.style.top = currentTop + 5 + "px";
+
+
+                if (checkCollision(barrier, car)) {
+                    clearInterval(barrierInterval);
+                    gameOver();
+                }
+
+                if (currentTop >= gameContainer.clientHeight - 80) {
+                    gameContainer.removeChild(barrier);
+                }
+            }, 20);
+        }
+
+        function checkCollision(element1, element2) {
+            const rect1 = element1.getBoundingClientRect();
+            const rect2 = element2.getBoundingClientRect();
+            return (
+                rect1.right > rect2.left &&
+                rect1.left < rect2.right &&
+                rect1.bottom > rect2.top &&
+                rect1.top < rect2.bottom
+            );
+        }
+
+        function gameOver() {
+            alert("Game Over! Sua pontuação foi: " + score);
+            document.location.reload(); 
+        }
+
+        setInterval(createCoin, 1000);
+        setInterval(createBarrier, 2000);
+    </script>
+</body>
+</html>
