@@ -17,7 +17,7 @@
         .barrier {
             width: 40px;
             height: 80px;
-            background-size: cover;
+
             position: absolute;
             
         }
@@ -121,7 +121,7 @@
             barrier.style.top = "0";
             gameContainer.appendChild(barrier);
 
-            barrier.style.backgroundImage = "url('carroplicia.png')";
+            barrier.style.backgroundImage = "url('barreira2 (1).png')";
 
             gameContainer.appendChild(barrier);
 
@@ -141,9 +141,9 @@
             }, 20);
         }
 
-        function checkCollision(element1, element2) {
-            const rect1 = element1.getBoundingClientRect();
-            const rect2 = element2.getBoundingClientRect();
+        function checkCollision(barrier, car) {
+            const rect1 = barrier.getBoundingClientRect();
+            const rect2 = car.getBoundingClientRect();
             return (
                 rect1.right > rect2.left &&
                 rect1.left < rect2.right &&
